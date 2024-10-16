@@ -31,7 +31,10 @@
 #define SBI_ERR_SM_NOT_IMPLEMENTED 100100
 
 // Eyrie uses the old timer extension par default, switch to the new one that Tyche supports
-#define SBI_EXT_TIME 0x54494D45
+#define SBI_EXT_TIME  0x54494D45
+#define SBI_EXT_TYCHE 0x5479636865
+
+#define TYCHE_CALL_MANAGER 25
 
 void
 sbi_putchar(char character) {
@@ -49,14 +52,16 @@ sbi_set_timer(uint64_t stime_value) {
 
 uintptr_t
 sbi_stop_enclave(uint64_t request) {
-  printf("[CC] sbi stop enclave\n");
-  return SBI_CALL_1(SBI_EXT_EXPERIMENTAL_KEYSTONE_ENCLAVE, SBI_SM_STOP_ENCLAVE, request);
+  printf("[CC] sbi stop enclave with request: %lu\n", request);
+  return SBI_CALL_3(SBI_EXT_TYCHE, 0, TYCHE_CALL_MANAGER, request, 0);
+  /* return SBI_CALL_1(SBI_EXT_EXPERIMENTAL_KEYSTONE_ENCLAVE, SBI_SM_STOP_ENCLAVE, request); */
 }
 
 void
 sbi_exit_enclave(uint64_t retval) {
-  printf("[CC] sbi exit enclave\n");
-  SBI_CALL_1(SBI_EXT_EXPERIMENTAL_KEYSTONE_ENCLAVE, SBI_SM_EXIT_ENCLAVE, retval);
+  printf("[CC] sbi exit enclave with retval %lu\n", retval);
+  SBI_CALL_3(SBI_EXT_TYCHE, 0, TYCHE_CALL_MANAGER, retval, 1);
+  /* SBI_CALL_1(SBI_EXT_EXPERIMENTAL_KEYSTONE_ENCLAVE, SBI_SM_EXIT_ENCLAVE, retval); */
 }
 
 uintptr_t
